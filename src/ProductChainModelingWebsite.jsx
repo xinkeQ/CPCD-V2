@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { withApiBase } from "./data/apiBase";
 
 const STAGES = ["原材料获取", "材料与零部件生产", "产品制造", "运输分销", "使用阶段", "回收处置"];
 const INFINITE_ORIGIN = { x: 6000, y: 6000 };
@@ -753,7 +754,7 @@ export default function ProductChainModelingWebsite() {
   useEffect(() => {
     (async () => {
       try {
-        const resp = await fetch("/api/products/all");
+        const resp = await fetch(withApiBase("/api/products/all"));
         const data = await resp.json().catch(() => ({}));
         const items = Array.isArray(data?.items) ? data.items : [];
         const parsed = items
@@ -783,7 +784,7 @@ export default function ProductChainModelingWebsite() {
     setIsMatching(true);
     (async () => {
       try {
-        const resp = await fetch("/api/ai/generate-chain", {
+        const resp = await fetch(withApiBase("/api/ai/generate-chain"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

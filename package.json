@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:server": "node --env-file=.env.local server/index.js",
+    "start:server": "node server/index.js",
     "dev:full": "concurrently \"npm run dev\" \"npm run dev:server\"",
     "build": "vite build",
     "lint": "eslint .",
@@ -24,6 +25,7 @@
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "recharts": "^3.8.1",
+    "serverless-http": "^4.0.0",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {

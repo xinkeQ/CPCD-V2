@@ -53,6 +53,7 @@ import {
 } from "recharts";
 import { useUnifiedProductData } from "./data/cpcdDataBridge";
 import { getCurrentUser, loginUser, logoutUser, registerUser } from "./data/userAuth";
+import { withApiBase } from "./data/apiBase";
 
 const categoryData = [
   { name: "其他可运输货物", value: 994 },
@@ -145,6 +146,52 @@ const coBuilderOrganizations = [
   { name: "公众环境研究中心", logo: "/ipe-logo.jpeg" },
 ];
 
+const thirdPartyOrganizations = [
+  "中环联合认证中心（CEC）",
+  "新世纪检验认证有限责任公司",
+  "北京埃尔维质量认证中心",
+  "华夏认证中心有限公司",
+  "中纺标检验认证股份有限公司",
+  "上海禾邦认证有限公司",
+  "通标标准服务有限公司（SGS）",
+  "武汉网锐检测科技有限公司",
+  "中国船级社质量认证有限公司",
+  "泰尔认证中心有限公司",
+  "徐州工程学院",
+  "青岛踏石工程项目管理有限公司",
+  "上海申长科技有限公司",
+  "北京中经科环质量认证有限公司",
+  "中鉴认证有限责任公司",
+  "国信认证无锡有限公司",
+  "方圆标志认证集团",
+  "天翼物联科技有限公司",
+  "长园综合能源（深圳）有限公司",
+  "中泰联合认证有限公司",
+  "安徽天方工业工程技术研究院有限公司",
+  "宁夏银洲枫煜数据科技有限公司",
+  "方圆标志认证集团有限公司",
+  "湖南碳峰科技有限公司",
+  "北京国建联信认证中心有限公司",
+  "中环联合（北京）认证中心有限公司",
+  "天祥检验服务（上海）有限公司（Intertek）",
+  "上海英格尔认证有限公司",
+  "中国能源建设集团广东省电力设计研究院有限公司",
+  "苏州恪诺思企业管理咨询有限公司",
+  "浙江省机电产品质量检测所",
+  "江苏省建筑材料研究设计院有限公司",
+  "伊尔姆环境资源管理咨询（上海）有限公司",
+  "苏州碳科环镜科技有限公司",
+  "中车株洲电力机车研究所有限公司",
+  "中国饮料工业协会",
+  "法标认证服务（成都）有限公司",
+  "上海建科检验有限公司",
+  "深圳万泰认证有限公司",
+  "苏州中聚节能科技有限公司",
+  "上海永盛碳道技术服务有限公司",
+  "方圆检测认证集团",
+  "北京联合智业认证有限公司",
+];
+
 const PAGE_SIZE = 20;
 
 const factorCategories = [
@@ -159,6 +206,40 @@ const factorCategories = [
   ["旅客运输", "Scope 3 Cat.6/Cat.7", "p·km / km", "交通统计与出行调查"],
   ["运营废弃物处理", "Scope 3 Cat.5", "吨废弃物", "环境工程文献系统检索"],
 ];
+
+const CATEGORY_ORDER = [
+  "建筑和建筑服务",
+  "金融及有关服务、不动产服务、出租和租赁服务",
+  "金属制品、机械和设备",
+  "经销行业服务、住宿、食品饮料服务、运输服务、公用事业分配服务",
+  "矿石和矿物、电、气和水",
+  "农业、林业和水产品",
+  "其他可运输货物（不含金属制品、机械和设备）",
+  "商业和生产服务",
+  "社区、社会和个人服务",
+  "食品饮料烟草、纺织品服装皮革制品",
+  "碳移除",
+  "/",
+];
+
+function normalizeCategoryName(name) {
+  return String(name || "")
+    .replace(/[、,，；;:：()（）\s]/g, "")
+    .replace(/[和及]/g, "")
+    .trim();
+}
+
+function getCategoryOrderIndex(name) {
+  const normalized = normalizeCategoryName(name);
+  const idx = CATEGORY_ORDER.findIndex((target) => normalizeCategoryName(target) === normalized);
+  if (idx >= 0) return idx;
+  if (normalized.includes("其他可运输货物")) return CATEGORY_ORDER.findIndex((x) => x.includes("其他可运输货物"));
+  if (normalized.includes("金融及有关服务")) return CATEGORY_ORDER.findIndex((x) => x.includes("金融及有关服务"));
+  if (normalized.includes("经销行业服务")) return CATEGORY_ORDER.findIndex((x) => x.includes("经销行业服务"));
+  if (normalized.includes("矿石和矿物")) return CATEGORY_ORDER.findIndex((x) => x.includes("矿石和矿物"));
+  if (normalized.includes("食品饮料") && normalized.includes("纺织")) return CATEGORY_ORDER.findIndex((x) => x.includes("食品饮料烟草"));
+  return Number.MAX_SAFE_INTEGER;
+}
 
 const navItems = [
   { key: "home", label: "首页", icon: Home },
@@ -838,7 +919,7 @@ function NewsModule({ setActive }) {
   useEffect(() => {
     if (newsType !== "realtime") return;
     setRealtimeLoading(true);
-    fetch("/api/news/realtime")
+    fetch(withApiBase("/api/news/realtime"))
       .then((r) => r.json())
       .then((data) => setRealtimeItems(Array.isArray(data.items) ? data.items : []))
       .catch(() => setRealtimeItems([]))
@@ -940,7 +1021,7 @@ function NewsPage() {
   const [detailLoading, setDetailLoading] = useState(false);
 
   useEffect(() => {
-    fetch("/api/news/all")
+    fetch(withApiBase("/api/news/all"))
       .then((r) => r.json())
       .then((data) => {
         const list = Array.isArray(data.items) ? data.items : [];
@@ -954,7 +1035,7 @@ function NewsPage() {
     setSelected(item);
     setDetailLoading(true);
     try {
-      const r = await fetch(`/api/news/item/${encodeURIComponent(item.id)}`);
+      const r = await fetch(withApiBase(`/api/news/item/${encodeURIComponent(item.id)}`));
       const detail = await r.json();
       setSelected(detail);
     } catch {
@@ -1085,7 +1166,7 @@ function PartnersModule() {
 
       <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-lg font-semibold text-slate-900">共建单位</h3>
+          <h3 className="text-lg font-semibold text-slate-900">牵头单位</h3>
           <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
             联合支持
           </span>
@@ -1099,6 +1180,22 @@ function PartnersModule() {
                 className="h-16 w-full object-contain"
                 loading="lazy"
               />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h3 className="text-lg font-semibold text-slate-900">第三方机构</h3>
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
+            生态协同
+          </span>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {thirdPartyOrganizations.map((name) => (
+            <div key={name} className="rounded-xl bg-white px-3 py-2.5 text-sm text-slate-700 ring-1 ring-slate-200">
+              {name}
             </div>
           ))}
         </div>
@@ -1256,7 +1353,7 @@ function LibraryPage() {
         </div>
       </motion.div>
 
-      <div ref={listRef} className="mt-6 grid gap-6 lg:grid-cols-[300px_1fr_380px]">
+      <div ref={listRef} className="mt-6 grid gap-6 lg:grid-cols-[300px_1fr]">
         <aside className="self-start rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-5 lg:sticky lg:top-20">
           <div className="mb-4 flex items-center gap-2 font-semibold"><Filter size={18} />筛选条件</div>
           <div className="space-y-5">
@@ -1280,16 +1377,48 @@ function LibraryPage() {
             </div>
             <button className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-200"><Download size={16} /> 导出</button>
           </div>
-          {paged.map((item, index) => (
-            <motion.div
-              key={item.id + index}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.03, duration: 0.3 }}
-            >
-              <ProductCard item={item} selected={selected?.id === item.id} onClick={() => handleSelect(item)} />
-            </motion.div>
-          ))}
+          {paged.length > 0 && (
+            <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-left">
+                  <thead className="bg-slate-50">
+                    <tr className="text-sm font-semibold text-slate-700">
+                      <th className="px-4 py-3">ID号</th>
+                      <th className="px-4 py-3">名称</th>
+                      <th className="px-4 py-3">碳足迹数值</th>
+                      <th className="px-4 py-3">边界</th>
+                      <th className="px-4 py-3">地域</th>
+                      <th className="px-4 py-3">时间</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paged.map((item, index) => (
+                      <motion.tr
+                        key={item.id + index}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.02, duration: 0.25 }}
+                        onClick={() => handleSelect(item)}
+                        className={`cursor-pointer border-t border-slate-100 text-sm transition-colors hover:bg-emerald-50 ${
+                          selected?.id === item.id ? "bg-emerald-50/70" : "bg-white"
+                        }`}
+                      >
+                        <td className="whitespace-nowrap px-4 py-3 text-slate-600">{item.id || "—"}</td>
+                        <td className="px-4 py-3">
+                          <div className="font-semibold text-slate-900">{item.name}</div>
+                          <div className="line-clamp-1 text-xs text-slate-500">{item.english}</div>
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-3 font-semibold text-emerald-700">{item.footprint}</td>
+                        <td className="whitespace-nowrap px-4 py-3 text-slate-600">{item.boundary || "—"}</td>
+                        <td className="whitespace-nowrap px-4 py-3 text-slate-600">{item.region || "—"}</td>
+                        <td className="whitespace-nowrap px-4 py-3 text-slate-600">{item.year || "—"}</td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
           {filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center rounded-2xl bg-white py-16 text-center ring-1 ring-slate-200">
               <Search size={32} className="text-slate-300" />
@@ -1299,19 +1428,29 @@ function LibraryPage() {
           )}
           {totalPages > 1 && <Pagination current={page} total={totalPages} onChange={handlePageChange} />}
         </section>
-
-        <div className="hidden lg:block">
-          {selected && <ProductDetail selected={selected} />}
-        </div>
       </div>
 
       <AnimatePresence>
         {showDetail && selected && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden" onClick={() => setShowDetail(false)} />
-            <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} className="fixed bottom-0 right-0 top-0 z-50 w-full max-w-md overflow-y-auto lg:hidden">
-              <div className="relative min-h-full">
-                <button onClick={() => setShowDetail(false)} className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white"><X size={18} /></button>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 bg-black/45 backdrop-blur-sm"
+              onClick={() => setShowDetail(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 18, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 18, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50 mx-auto flex w-full max-w-3xl items-center justify-center p-3 sm:p-6"
+            >
+              <div className="relative max-h-[90vh] w-full overflow-y-auto rounded-3xl shadow-2xl">
+                <button onClick={() => setShowDetail(false)} className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white">
+                  <X size={18} />
+                </button>
                 <ProductDetail selected={selected} />
               </div>
             </motion.div>
@@ -1338,7 +1477,14 @@ function CategoryTree({ tree, filter, onChange, total }) {
           <span>全部分类</span>
           <span className={`text-xs ${isActive ? "text-white/50" : "text-slate-400"}`}>{total.toLocaleString()}</span>
         </button>
-        {Object.keys(tree).sort().map((c1) => {
+        {Object.keys(tree)
+          .sort((a, b) => {
+            const ai = getCategoryOrderIndex(a);
+            const bi = getCategoryOrderIndex(b);
+            if (ai !== bi) return ai - bi;
+            return a.localeCompare(b, "zh-CN");
+          })
+          .map((c1) => {
           const node1 = tree[c1];
           const k1 = `1:${c1}`;
           const is1 = filter.level >= 1 && filter.cat1 === c1;
@@ -1493,6 +1639,50 @@ function ProductCard({ item, selected, onClick }) {
 }
 
 function ProductDetail({ selected }) {
+  const orderedFields = [
+    ["一级分类", ["一级分类", "cat1"]],
+    ["二级分类", ["二级分类", "cat2"]],
+    ["三级分类", ["三级分类", "cat3"]],
+    ["四级分类", ["四级分类", "cat4"]],
+    ["产品ID号", ["产品ID号", "id"]],
+    ["产品名称", ["产品名称", "name"]],
+    ["产品名称（英文）", ["产品名称（英文）", "english"]],
+    ["产品碳足迹", ["产品碳足迹", "footprint"]],
+    ["数据质量", ["数据质量", "quality"]],
+    ["功能单元", ["功能单元", "unit"]],
+    ["技术代表性", ["技术代表性", "tech"]],
+    ["数据来源", ["数据来源", "source"]],
+    ["产品描述", ["产品描述", "desc"]],
+    ["核算边界", ["核算边界", "boundary"]],
+    ["地域代表性", ["地域代表性", "region"]],
+    ["数据时间", ["数据时间", "year"]],
+    ["生命周期各阶段碳足迹", ["生命周期各阶段碳足迹", "stages"]],
+    ["生命周期各阶段碳足迹单位", ["生命周期各阶段碳足迹单位", "stagesUnit"]],
+    ["说明", ["说明", "note"]],
+    ["贡献人", ["贡献人"]],
+    ["最新修改时间", ["最新修改时间"]],
+    ["企业名称", ["企业名称"]],
+    ["核算边界范围", ["核算边界范围"]],
+    ["上游电网电量(kWh)", ["上游电网电量(kWh)"]],
+    ["上游电网排放因子(kgCO2e/kWh)", ["上游电网排放因子(kgCO2e/kWh)"]],
+    ["下游电网电量(kWh)", ["下游电网电量(kWh)"]],
+    ["下游电网排放因子(kgCO2e/kWh)", ["下游电网排放因子(kgCO2e/kWh)"]],
+    ["生产工艺", ["生产工艺", "process"]],
+    ["贡献人评论", ["贡献人评论"]],
+    ["数据来源/参考文献", ["数据来源/参考文献", "ref"]],
+    ["原材料信息", ["原材料信息"]],
+    ["不同温室气体排放", ["不同温室气体排放"]],
+    ["状态", ["状态"]],
+  ];
+
+  const getFieldValue = (aliases) => {
+    for (const key of aliases) {
+      const value = selected?.[key];
+      if (value !== undefined && value !== null && String(value).trim() !== "") return String(value);
+    }
+    return "—";
+  };
+
   return (
     <aside className="sticky top-20 self-start rounded-3xl bg-slate-950 p-5 text-white">
       <div className="mb-4 flex items-center justify-between">
@@ -1524,6 +1714,17 @@ function ProductDetail({ selected }) {
       {selected.process && <DetailBlock title="生产工艺" content={selected.process} />}
       {selected.note && <DetailBlock title="说明" content={selected.note} />}
       {selected.ref && <DetailBlock title="参考文献" content={selected.ref} />}
+      <div className="mt-4 rounded-2xl bg-white/8 p-4 ring-1 ring-white/10">
+        <div className="mb-3 text-sm font-semibold text-emerald-200">完整字段信息（20260105CPCD）</div>
+        <div className="space-y-2 text-sm">
+          {orderedFields.map(([label, aliases]) => (
+            <div key={label} className="rounded-xl bg-white/6 p-2.5">
+              <div className="text-xs text-white/45">{label}</div>
+              <div className="mt-1 whitespace-pre-wrap break-words text-white/85">{getFieldValue(aliases)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
     </aside>
   );
 }

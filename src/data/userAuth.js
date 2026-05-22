@@ -1,3 +1,5 @@
+import { withApiBase } from "./apiBase";
+
 const TOKEN_KEY = "cpcd_front_user_token";
 const USER_KEY = "cpcd_front_user";
 
@@ -25,7 +27,7 @@ export function logoutUser() {
 }
 
 export async function loginUser(email, password) {
-  const res = await fetch("/api/auth/login", {
+  const res = await fetch(withApiBase("/api/auth/login"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -37,7 +39,7 @@ export async function loginUser(email, password) {
 }
 
 export async function registerUser(name, email, password, org) {
-  const res = await fetch("/api/auth/register", {
+  const res = await fetch(withApiBase("/api/auth/register"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, email, password, org }),

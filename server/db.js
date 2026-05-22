@@ -3,7 +3,9 @@ import path from "node:path";
 import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
 
-const dataDir = path.resolve(process.cwd(), "server", "data");
+const dataDir = process.env.NETLIFY
+  ? path.resolve("/tmp", "cpcd-server-data")
+  : path.resolve(process.cwd(), "server", "data");
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
 const db = new Database(path.join(dataDir, "admin.sqlite"));

@@ -346,9 +346,11 @@ app.delete("/api/admin/news/:id", auth, (req, res) => {
   res.json({ ok: true });
 });
 
-app.listen(port, () => {
-  console.log(`CPCD admin API running on http://localhost:${port}`);
-});
+if (!process.env.NETLIFY) {
+  app.listen(port, () => {
+    console.log(`CPCD admin API running on http://localhost:${port}`);
+  });
+}
 
 async function importRealtimeNewsOnce() {
   const exists = listNewsItems().some((x) => x.id.startsWith("EXT-"));
@@ -453,3 +455,5 @@ function normalizeGeneratedChain(raw, context) {
 
   return { nodes, links };
 }
+
+export default app;

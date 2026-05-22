@@ -1,3 +1,4 @@
+import { withApiBase } from "./apiBase";
 const TOKEN_KEY = "cpcd_admin_jwt";
 
 function getToken() {
@@ -16,7 +17,7 @@ async function api(path, options = {}) {
   const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
   const token = getToken();
   if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(path, { ...options, headers });
+  const res = await fetch(withApiBase(path), { ...options, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.message || `Request failed: ${res.status}`);
@@ -82,8 +83,12 @@ export async function fetchAllProductsApi() {
 
 export async function checkApiHealth() {
   try {
-    const res = await fetch("/api/health");
-    return res.ok;
+    const res = await fetch(withApiBase("/api/health"));
+    if (!res.ok) return false;
+    const contentType = res.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) return false;
+    const data = await res.json().catch(() => null);
+    return Boolean(data?.ok);
   } catch {
     return false;
   }
