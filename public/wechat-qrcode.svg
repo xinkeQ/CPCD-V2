@@ -1,0 +1,35 @@
+<svg width="320" height="320" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="微信公众号二维码占位图">
+  <rect width="320" height="320" fill="#ffffff"/>
+  <rect x="20" y="20" width="80" height="80" fill="#0f172a"/>
+  <rect x="30" y="30" width="60" height="60" fill="#ffffff"/>
+  <rect x="40" y="40" width="40" height="40" fill="#0f172a"/>
+  <rect x="220" y="20" width="80" height="80" fill="#0f172a"/>
+  <rect x="230" y="30" width="60" height="60" fill="#ffffff"/>
+  <rect x="240" y="40" width="40" height="40" fill="#0f172a"/>
+  <rect x="20" y="220" width="80" height="80" fill="#0f172a"/>
+  <rect x="30" y="230" width="60" height="60" fill="#ffffff"/>
+  <rect x="40" y="240" width="40" height="40" fill="#0f172a"/>
+  <rect x="130" y="28" width="18" height="18" fill="#111827"/>
+  <rect x="160" y="28" width="18" height="18" fill="#111827"/>
+  <rect x="190" y="28" width="18" height="18" fill="#111827"/>
+  <rect x="118" y="58" width="18" height="18" fill="#111827"/>
+  <rect x="148" y="58" width="18" height="18" fill="#111827"/>
+  <rect x="178" y="58" width="18" height="18" fill="#111827"/>
+  <rect x="108" y="100" width="22" height="22" fill="#111827"/>
+  <rect x="140" y="96" width="22" height="22" fill="#111827"/>
+  <rect x="174" y="108" width="22" height="22" fill="#111827"/>
+  <rect x="206" y="102" width="22" height="22" fill="#111827"/>
+  <rect x="104" y="138" width="22" height="22" fill="#111827"/>
+  <rect x="138" y="144" width="22" height="22" fill="#111827"/>
+  <rect x="172" y="138" width="22" height="22" fill="#111827"/>
+  <rect x="206" y="144" width="22" height="22" fill="#111827"/>
+  <rect x="108" y="182" width="22" height="22" fill="#111827"/>
+  <rect x="142" y="188" width="22" height="22" fill="#111827"/>
+  <rect x="176" y="182" width="22" height="22" fill="#111827"/>
+  <rect x="210" y="188" width="22" height="22" fill="#111827"/>
+  <rect x="118" y="224" width="18" height="18" fill="#111827"/>
+  <rect x="148" y="224" width="18" height="18" fill="#111827"/>
+  <rect x="178" y="224" width="18" height="18" fill="#111827"/>
+  <rect x="208" y="224" width="18" height="18" fill="#111827"/>
+  <text x="160" y="306" text-anchor="middle" font-size="16" fill="#475569" font-family="Arial, sans-serif">微信公众号二维码</text>
+</svg>
